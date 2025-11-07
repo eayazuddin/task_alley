@@ -1,5 +1,8 @@
 
 import 'package:get/get.dart';
+import 'package:task_alley/view/screens/auth/controller/auth_controller.dart';
+
+import '../../view/screens/post_task/controller/post_controller.dart';
 
 class DependencyInjection extends Bindings {
   @override
@@ -7,17 +10,9 @@ class DependencyInjection extends Bindings {
     ///==========================Default Custom Controller ==================
 
 
+    Get.lazyPut(() => PostController(), fenix: true);
+    Get.lazyPut(() => AuthController(), fenix: true);
 
 
-    // Get.lazyPut(() => HomeController(), fenix: true);
-    // Get.lazyPut(() => ClassController(), fenix: true);
-    // Get.lazyPut(() => OderHistoryController(), fenix: true);
-    // Get.lazyPut(() => ShopeController(), fenix: true);
-    // Get.lazyPut(() => AuthController(), fenix: true);
-    // Get.lazyPut(() => CartController(), fenix: true);
-    // Get.lazyPut(() => ProfileController(), fenix: true);
-    // Get.lazyPut(() => MembershipController(), fenix: true);
-    // Get.lazyPut(() => NotificationController(), fenix: true);
-    // Get.lazyPut(() => SettingsController(), fenix: true);
   }
 }

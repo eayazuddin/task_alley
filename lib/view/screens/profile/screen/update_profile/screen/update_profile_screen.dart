@@ -1,34 +1,16 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:get/get.dart';
+import 'package:task_alley/view/screens/profile/screen/update_profile/controller/update_controller.dart';
 import '../../../../../../utils/app_colors/app_colors.dart';
 import '../../../../../widgets/custom_text_field.dart';
 import '../widget/profile_avatar.dart';
 
-class UpdateProfileScreen extends StatefulWidget {
-  const UpdateProfileScreen({super.key});
+class UpdateProfileScreen extends StatelessWidget {
+  UpdateProfileScreen({super.key});
 
-  @override
-  State<UpdateProfileScreen> createState() => _UpdateProfileScreenState();
-}
-
-class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
-  final TextEditingController locationController = TextEditingController();
-
-  File? _selectedImage;
-  final ImagePicker _picker = ImagePicker();
-
-  // Pick image only from gallery
-  Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() => _selectedImage = File(image.path));
-    }
-  }
+  final controller = Get.put(UpdateProfileController());
 
   @override
   Widget build(BuildContext context) {
@@ -69,11 +51,14 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
               SizedBox(height: 25.h),
 
               // Profile Image + Gallery Picker
-              ProfileAvatar(
-                imageFile: _selectedImage,
-                onPickImage: _pickImage, // directly pick from gallery
-              ),
-
+              Obx(() {
+                return ProfileAvatar(
+                  imageFile: controller.selectedImage.value != null
+                      ? File(controller.selectedImage.value!.path)
+                      : null,
+                  onPickImage: controller.pickImage,
+                );
+              }),
               SizedBox(height: 30.h),
 
               // Full Name Field
@@ -81,12 +66,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Full Name",
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14.sp),
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500, fontSize: 14.sp),
                 ),
               ),
               SizedBox(height: 5.h),
               CustomTextField(
-                textEditingController: nameController,
+                textEditingController: controller.nameController.value,
                 hintText: "e.g. Kristin",
                 fillColor: const Color(0xFFF0F9F8),
                 fieldBorderColor: Colors.transparent,
@@ -98,12 +84,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Email Address",
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14.sp),
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500, fontSize: 14.sp),
                 ),
               ),
               SizedBox(height: 5.h),
               CustomTextField(
-                textEditingController: emailController,
+                textEditingController: controller.emailController.value,
                 hintText: "e.g. kristin.cooper@example.com",
                 keyboardType: TextInputType.emailAddress,
                 fillColor: const Color(0xFFF0F9F8),
@@ -116,12 +103,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Phone Number",
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14.sp),
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500, fontSize: 14.sp),
                 ),
               ),
               SizedBox(height: 5.h),
               CustomTextField(
-                textEditingController: phoneController,
+                textEditingController: controller.phoneController.value,
                 hintText: "e.g. (480) 555-0103",
                 keyboardType: TextInputType.phone,
                 fillColor: const Color(0xFFF0F9F8),
@@ -134,12 +122,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Location",
-                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 14.sp),
+                  style: TextStyle(
+                      fontWeight: FontWeight.w500, fontSize: 14.sp),
                 ),
               ),
               SizedBox(height: 5.h),
               CustomTextField(
-                textEditingController: locationController,
+                textEditingController: controller.locationController.value,
                 hintText: "2118 Thornridge Cir. Syracuse, Connecticut...",
                 fillColor: const Color(0xFFF0F9F8),
                 fieldBorderColor: Colors.transparent,

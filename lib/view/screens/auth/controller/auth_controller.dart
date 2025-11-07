@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
@@ -13,17 +15,15 @@ import '../../../../utils/app_const/app_const.dart';
 
 class AuthController extends GetxController {
 
-
-
   //============================= Sign Up =======================
 
   Rx<TextEditingController> nameController = TextEditingController().obs;
   Rx<TextEditingController> emailController = TextEditingController().obs;
   Rx<TextEditingController> passwordController = TextEditingController().obs;
-  Rx<TextEditingController> confirmPasswordController = TextEditingController().obs;
+  Rx<TextEditingController> confirmPasswordController =
+      TextEditingController().obs;
   Rx<TextEditingController> phoneController = TextEditingController().obs;
   Rx<TextEditingController> roleController = TextEditingController().obs;
-
 
   RxBool signUpLoading = false.obs;
 
@@ -36,7 +36,7 @@ class AuthController extends GetxController {
       "password": passwordController.value.text,
       "confirmPassword": confirmPasswordController.value.text,
       "phone": phoneController.value.text,
-      "role":role,
+      "role": role,
     };
 
     var response = await ApiClient.postData(ApiUrl.signUp, jsonEncode(body));
@@ -47,11 +47,8 @@ class AuthController extends GetxController {
       // Get.offAllNamed(AppRoutes.otpScreen);
       Get.offAllNamed(
         AppRoutes.otpScreen,
-        arguments: {
-          "email": emailController.value.text.trim(),
-        },
+        arguments: {"email": emailController.value.text.trim()},
       );
-
     } else {
       ApiChecker.checkApi(response);
       signUpLoading(false);
@@ -63,6 +60,54 @@ class AuthController extends GetxController {
     emailController.value.clear();
     passwordController.value.clear();
     confirmPasswordController.value.clear();
+  }
+
+  //===================================  Address Update  =======================================//
+
+  Rx<TextEditingController> cityController = TextEditingController().obs;
+  Rx<TextEditingController> addressController = TextEditingController().obs;
+  RxBool addressUpdateLoading = false.obs;
+
+  final Rx<File?> documentPath = Rx<File?>(null);
+
+  Future<void> pickDocument() async {
+    final result = await FilePicker.platform.pickFiles();
+    if (result != null && result.files.single.path != null) {
+      documentPath.value = File(result.files.single.path!);
+    }
+  }
+
+  Future<void> updateMyProfile() async {
+    addressUpdateLoading(true);
+    var body = {
+      "data": jsonEncode({
+        "name": 'vbdfg',
+        "city": cityController.value.text,
+        "address": addressController.value.text,
+      }),
+    };
+
+    final response = await ApiClient.patchMultipartData(
+      ApiUrl.address,
+      body,
+      multipartBody: [MultipartBody("address_document", documentPath.value!)],
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      showCustomSnackBar('Profile Updated Successfully', isError: false);
+      addressUpdateLoading(false);
+
+      Get.offAllNamed(AppRoutes.referralScreen);
+
+      nameController.value.clear();
+      cityController.value.clear();
+      addressController.value.text;
+
+      Get.back();
+    } else {
+      ApiChecker.checkApi(response);
+      addressUpdateLoading(false);
+    }
   }
 
   //========================================== Sign up varification ================================
@@ -108,16 +153,14 @@ class AuthController extends GetxController {
   //   });
   // }
 
-
   //========================================== SignUpOtp ==============================
 
 
+  //================================== SignUpOtp  ======================================//
+
   Rx<TextEditingController> otpController = TextEditingController().obs;
 
-  Future<void> signUpOtp({
-    required String email,
-    required String otp,
-  }) async {
+  Future<void> signUpOtp({required String email, required String otp}) async {
     var response = await ApiClient.postData(
       ApiUrl.varifyCode,
       jsonEncode({
@@ -128,13 +171,17 @@ class AuthController extends GetxController {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       showCustomSnackBar(response.body['message'], isError: false);
+
+      SharePrefsHelper.setString(
+        AppConstants.bearerToken,
+        response.body['data']['accessToken'],
+      );
+
       Get.offAllNamed(AppRoutes.addressScreen);
     } else {
       ApiChecker.checkApi(response);
     }
   }
-
-
 
   // Future<void> signUpResendOtp({required String email}) async {
   //   var response = await ApiClient.postData(
@@ -149,58 +196,51 @@ class AuthController extends GetxController {
   //   }
   // }
 
-  //========================================== Login ==============================
+  //========================================== Login ==========================================//
 
-final loginEmailController = TextEditingController(
-  text: kDebugMode ? 'eayazuddin456@gmail.com' : '',
-);
+  final loginEmailController = TextEditingController(
+    text: kDebugMode ? 'eayazuddin@gmail.com' : '',
+  );
 
-final loginPasswordController = TextEditingController(
-  text: kDebugMode ? '123456' : '',
-);
+  final loginPasswordController = TextEditingController(
+    text: kDebugMode ? '123456' : '',
+  );
 
-final RxBool loginLoading = false.obs;
+  final RxBool loginLoading = false.obs;
 
+  Future<void> login() async {
+    loginLoading(true);
 
-Future<void> login() async {
-  loginLoading(true);
+    final body = {
+      "email": loginEmailController.text.trim(),
+      "password": loginPasswordController.text.trim(),
+    };
 
-  final body = {
-    "email": loginEmailController.text.trim(),
-    "password": loginPasswordController.text.trim(),
-  };
+    try {
+      final response = await ApiClient.postData(ApiUrl.login, jsonEncode(body));
 
-  try {
-    final response = await ApiClient.postData(ApiUrl.login, jsonEncode(body));
+      if (response.statusCode == 200 || response.statusCode == 201) {
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      // final loginModel = LoginModel.fromJson(response.body);
+        SharePrefsHelper.setString(
+          AppConstants.bearerToken,
+          response.body["data"]["accessToken"],
+        );
 
-      // showCustomSnackBar(loginModel.message, isError: false);
+        final token = await SharePrefsHelper.getString(
+          AppConstants.bearerToken,
+        );
+        debugPrint('Token: $token');
 
-     SharePrefsHelper.setString(AppConstants.bearerToken, response.body["data"]["accessToken"]);
-
-
-
-      // await SharePrefsHelper.setString(
-      //   AppConstants.bearerToken,
-      //   loginModel.data.accessToken,
-      // );
-
-      final token = await SharePrefsHelper.getString(AppConstants.bearerToken);
-      debugPrint('Token: $token');
-
-      Get.offAllNamed(AppRoutes.base);
-    } else {
-      ApiChecker.checkApi(response);
+        Get.offAllNamed(AppRoutes.base);
+      } else {
+        ApiChecker.checkApi(response);
+      }
+    } catch (e) {
+      showCustomSnackBar("Something went wrong: $e", isError: true);
+    } finally {
+      loginLoading(false);
     }
-  } catch (e) {
-    showCustomSnackBar("Something went wrong: $e", isError: true);
-  } finally {
-    loginLoading(false);
   }
-}
-
 
   // Rx<TextEditingController> loginEmailController = TextEditingController(
   //       text: kDebugMode ? 'nofif65355@hadvar.com' : '',).obs;
@@ -236,7 +276,6 @@ Future<void> login() async {
   //     loginLoading(false);
   //   }
   // }
-
 
   // class LoginController extends GetxController  {
   // // Controllers
@@ -299,7 +338,6 @@ Future<void> login() async {
   // super.onClose();
   // }
   // }
-
 
   //================================================= Forget Password ================================
 
@@ -385,8 +423,10 @@ Future<void> login() async {
 
   //=========================== Forgot reset Password =================
 
-  Rx<TextEditingController> resetPasswordController = TextEditingController().obs;
-  Rx<TextEditingController> resetConfirmPasswordController = TextEditingController().obs;
+  Rx<TextEditingController> resetPasswordController =
+      TextEditingController().obs;
+  Rx<TextEditingController> resetConfirmPasswordController =
+      TextEditingController().obs;
 
   // RxBool resetPasswordLoading = false.obs;
   //

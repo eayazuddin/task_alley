@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 
 class IdentityVerificationScreen extends StatefulWidget {
+  const IdentityVerificationScreen({super.key});
+
   @override
   _IdentityVerificationScreenState createState() =>
       _IdentityVerificationScreenState();

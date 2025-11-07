@@ -6,7 +6,7 @@ class CustomDropDownWidget extends StatefulWidget {
   final List<String> items;
   final String? initialValue;
   final Function(String) onChanged;
-  final FormFieldValidator<String>? validator; // 👈 Added for validation
+  final FormFieldValidator<String>? validator; //  Added for validation
 
   const CustomDropDownWidget({
     super.key,

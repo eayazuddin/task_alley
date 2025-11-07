@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../../../gen/assets.gen.dart';
 import '../../../widgets/CustomAppBar.dart';
@@ -22,6 +24,7 @@ class _TaskDetailsState extends State<TaskDetails> {
   final ImagePicker _picker = ImagePicker();
 
   // Pick image only from gallery
+
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
@@ -29,9 +32,15 @@ class _TaskDetailsState extends State<TaskDetails> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final args = Get.arguments;
+    final String title = args['title'] ?? '';
+    final String category = args['category'] ?? '';
+
+    print(title);
+    print(category);
+
     return Scaffold(
       appBar: CustomAppBar(
         title: 'Post Task',
@@ -77,6 +86,7 @@ class _TaskDetailsState extends State<TaskDetails> {
                 ],
               ),
               CustomTextField(
+                textEditingController: tDController,
                 maxLines: 3,
                 hintText:
                     "Clearly explain what needs to be done, including details like"
@@ -105,7 +115,7 @@ class _TaskDetailsState extends State<TaskDetails> {
               ),
               SizedBox(height: 10),
               GestureDetector(
-                onTap: (){
+                onTap: () {
                   _pickImage();
                 },
                 child: Container(
@@ -157,12 +167,14 @@ class _TaskDetailsState extends State<TaskDetails> {
                       width: 130,
                       onTap: () {
                         if (_formKey.currentState!.validate()) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const DateAndTime(),
-                            ),
-                          );
+                          final taskData = {
+                            'title': title,
+                            'category': category,
+                            'description': tDController.text,
+                            'image': _selectedImage?.path,
+                          };
+
+                          Get.to(const DateAndTime(), arguments: taskData);
                         }
                       },
                     ),

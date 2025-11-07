@@ -11,7 +11,7 @@ import '../../login/screen/login_page.dart';
 class SignupScreen extends StatelessWidget {
   SignupScreen({super.key});
 
-  final AuthController controller = Get.put(AuthController());
+  final  controller = Get.find<AuthController>();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final RxBool rememberMe = false.obs;
 
@@ -89,7 +89,7 @@ class SignupScreen extends StatelessWidget {
                 CustomTextField(
                   textEditingController: controller.phoneController.value,
                   hintText: "Enter your phone number",
-                  keyboardType: TextInputType.phone,
+                  keyboardType: TextInputType.visiblePassword,
                   validator: (value) {
                     if (value?.isEmpty ?? true) {
                       return 'Please enter your phone number';

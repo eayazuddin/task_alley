@@ -11,7 +11,7 @@ import '../../controller/auth_controller.dart';
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
 
-  final controller = Get.put(AuthController());
+  final controller = Get.find<AuthController>();
   final _formKey = GlobalKey<FormState>();
 
   @override

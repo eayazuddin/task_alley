@@ -1,5 +1,8 @@
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:task_alley/view/screens/post_task/controller/post_controller.dart';
 import 'package:task_alley/view/screens/post_task/screen/task_details.dart';
 import 'package:task_alley/view/widgets/custom_button.dart';
 import 'package:task_alley/view/widgets/custom_text_field.dart';
@@ -16,9 +19,10 @@ class PostTaskScreen extends StatefulWidget {
 
 class _PostTaskScreenState extends State<PostTaskScreen> {
 
+  //final PostController controller = Get.fin
+
   final TextEditingController tEController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
   String? selectedCategory;
 
   @override
@@ -107,11 +111,12 @@ class _PostTaskScreenState extends State<PostTaskScreen> {
                   width: 130,
                   onTap: () {
                     if (_formKey.currentState!.validate()) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const TaskDetails(),
-                        ),
+                      Get.to(
+                        const TaskDetails(),
+                        arguments: {
+                          'title': tEController.text,
+                          'category': selectedCategory,
+                        },
                       );
                     }
                   },

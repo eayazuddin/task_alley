@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:task_alley/utils/app_colors/app_colors.dart';
+import 'core/dependency/dependency_injection.dart';
 import 'core/routes/app_routes.dart';
 
 void main() {
+  DependencyInjection;
   runApp(const TaskAlley());
 }
 
@@ -28,6 +30,7 @@ class TaskAlley extends StatelessWidget {
             iconTheme: IconThemeData(color: AppColors.white),
           ),
         ),
+        initialBinding: DependencyInjection(),
         debugShowCheckedModeBanner: false,
         defaultTransition: Transition.fadeIn,
         transitionDuration: const Duration(milliseconds: 200),
